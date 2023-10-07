@@ -1,5 +1,7 @@
 package engtelecom.db;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -7,14 +9,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-// import java.awt.Image;
-// import javax.swing.ImageIcon;
+
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 
 public class WisefiApInclude {
     private String ip;
@@ -63,49 +72,71 @@ public class WisefiApInclude {
     public static String getModelo(final int escolha) {
         switch (escolha) {
             case 1:
-                return "AP300";
-            case 2:
                 return "AP310";
-            case 3:
+            case 2:
                 return "AP360";
+            case 3:
+                return "AP 1210 AC";
             case 4:
-                return "AP1210AC";
+                return "AP 1250 AC Max";
             case 5:
-                return "AP1250AC";
+                return "AP 1350 AC";
             case 6:
-                return "AP1250ACMAX";
+                return "AP 1350 S";
             case 7:
-                return "AP1350AC";
+                return "AP 1750 AC";
             case 8:
-                return "AP1350AC-S";
-            case 9:
-                return "AP1750AC";
-            case 10:
                 return "BSPRO360";
-            case 11:
+            case 9:
                 return "BSPRO1350";
-            case 12:
+            case 10:
                 return "BSPRO1350-S";
-            case 13:
-                return "AP1250ACOUTDOOR";
+            case 11:
+                return "AP 1250 AC Outdoor";
             default:
                 return null;
         }
     }
 
+    public static void mostrarCriador() {
+        String nomeCriador = "Faber Bernardo Junior";
+        String githubLink = "https://github.com/faber222"; // Substitua com o link do GitHub do criador
+
+        // Configura as opções de codificação do QR code
+        Hashtable<EncodeHintType, Object> hints = new Hashtable<>();
+        hints.put(EncodeHintType.MARGIN, 2);
+
+        // Gera o QR code
+        try {
+            BitMatrix bitMatrix = new QRCodeWriter().encode(githubLink, BarcodeFormat.QR_CODE, 100, 100, hints);
+
+            // Cria uma ImageIcon a partir do QR code
+            BufferedImage bufferedImage = new BufferedImage(bitMatrix.getWidth(), bitMatrix.getHeight(),
+                    BufferedImage.TYPE_INT_ARGB);
+            for (int x = 0; x < bitMatrix.getWidth(); x++) {
+                for (int y = 0; y < bitMatrix.getHeight(); y++) {
+                    bufferedImage.setRGB(x, y, bitMatrix.get(x, y) ? Color.BLACK.getRGB() : Color.WHITE.getRGB());
+                }
+            }
+            ImageIcon qrCodeIcon = new ImageIcon(bufferedImage);
+
+            String mensagem = "O criador deste codigo e: " + nomeCriador + "\n\n" +
+                    "Voce pode encontrar o codigo-fonte no GitHub:";
+
+            JOptionPane.showMessageDialog(
+                    null, mensagem, "Criador e Link do GitHub", JOptionPane.INFORMATION_MESSAGE, qrCodeIcon);
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(final String[] args) {
         final WisefiApInclude app = new WisefiApInclude("-", 443);
-        // ImageIcon apImageIcon = new ImageIcon("/app/src/main/resources/ap.png");
-        // ImageIcon equImageIcon = new
-        // ImageIcon("/app/src/main/resources/equipamento.ico");
-        // ImageIcon ipImageIcon = new ImageIcon("/app/src/main/resources/ip.png");
-        // ImageIcon macImageIcon = new ImageIcon("/app/src/main/resources/mac.png");
+        Object[] options = { "Avancar", "Autor", "Cancelar" };
         final String[] modelos = {
-                "AP300",
                 "AP310",
                 "AP360",
                 "AP1210AC",
-                "AP1250AC",
                 "AP1250ACMAX",
                 "AP1350AC",
                 "AP1350AC-S",
@@ -116,12 +147,27 @@ public class WisefiApInclude {
                 "AP1250ACOUTDOOR"
         };
 
-        if (JOptionPane.showConfirmDialog(null, "Bem vindo a ferramenta de inclusao de aps no Wisefi", "DB_Includer",
-                2, 1) == 2) {
-            JOptionPane.showMessageDialog(null, "Voce pressionou o botao 'Cancelar'. O programa sera encerrado.",
-                    "Aviso", JOptionPane.WARNING_MESSAGE);
-            System.exit(0);
-        }
+        boolean condition = false;
+        do {
+            int result = JOptionPane.showOptionDialog(null, "Bem Vindo ao DB_Includer!", null,
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+            switch (result) {
+                case 0:
+                    condition = true;
+                    break;
+                case 1:
+                    mostrarCriador();
+
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(null,
+                            "Voce pressionou o botao 'Cancelar'. O programa sera encerrado.",
+                            "Aviso", JOptionPane.WARNING_MESSAGE);
+                    System.exit(0);
+                    break;
+            }
+        } while (!condition);
 
         final Scanner keyboard = new Scanner(System.in); // Cria um objeto Scanner para entrada do teclado.
         do {
@@ -192,12 +238,12 @@ public class WisefiApInclude {
                 app.setEscolha(0);
                 ;
             }
-            if (app.getEscolha() < 1 || app.getEscolha() > 13) {
+            if (app.getEscolha() < 1 || app.getEscolha() > modelos.length) {
                 JOptionPane.showMessageDialog(null, "Entrada invalida. Por favor, insira um numero de 1 a 10.",
                         "Erro",
                         JOptionPane.ERROR_MESSAGE);
             }
-        } while (app.getEscolha() < 1 || app.getEscolha() > 13);
+        } while (app.getEscolha() < 1 || app.getEscolha() > modelos.length);
 
         keyboard.close(); // Fecha o Scanner.
         setDb(app);
