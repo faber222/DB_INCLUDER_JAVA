@@ -42,16 +42,11 @@ application {
     mainClass.set("engtelecom.db.WisefiApInclude")
 }
 
+// Definindo o diretório de saída para as imagens
 sourceSets {
     main {
         resources {
-            srcDirs = ['src/main/resources']
+            srcDirs = ["src/main/resources"]
         }
     }
 }
-
-
-// tasks.named<Test>("test") {
-//     // Use JUnit Platform for unit tests.
-//     useJUnitPlatform()
-// }
