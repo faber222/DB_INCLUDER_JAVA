@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +28,7 @@ public class WisefiApInclude {
     private String ip;
     private String mac;
     private String versao;
-    private Integer escolha;
+    private String escolha;
     private Integer id;
     private String uptime;
     private Integer port;
@@ -69,37 +68,8 @@ public class WisefiApInclude {
         return matcher.matches();
     }
 
-    public static String getModelo(final int escolha) {
-        switch (escolha) {
-            case 1:
-                return "AP310";
-            case 2:
-                return "AP360";
-            case 3:
-                return "AP 1210 AC";
-            case 4:
-                return "AP 1250 AC Max";
-            case 5:
-                return "AP 1350 AC";
-            case 6:
-                return "AP 1350 S";
-            case 7:
-                return "AP 1750 AC";
-            case 8:
-                return "BSPRO360";
-            case 9:
-                return "BSPRO1350";
-            case 10:
-                return "BSPRO1350-S";
-            case 11:
-                return "AP 1250 AC Outdoor";
-            default:
-                return null;
-        }
-    }
-
     public static void mostrarCriador() {
-        String nomeCriador = "Faber Bernardo Junior";
+        String nomeCriador = "Faber";
         String githubLink = "https://github.com/faber222"; // Substitua com o link do GitHub do criador
 
         // Configura as opções de codificação do QR code
@@ -120,68 +90,81 @@ public class WisefiApInclude {
             }
             ImageIcon qrCodeIcon = new ImageIcon(bufferedImage);
 
-            String mensagem = "O criador deste codigo e: " + nomeCriador + "\n\n" +
-                    "Voce pode encontrar o codigo-fonte no GitHub:";
+            String mensagem = "O criador deste codigo: " + nomeCriador + "\n\n" +
+                    "Voce pode encontra-lo no GitHub:";
 
             JOptionPane.showMessageDialog(
-                    null, mensagem, "Criador e Link do GitHub", JOptionPane.INFORMATION_MESSAGE, qrCodeIcon);
+                    null, mensagem, "Criador faber222 e Link do GitHub", JOptionPane.INFORMATION_MESSAGE, qrCodeIcon);
         } catch (WriterException e) {
             e.printStackTrace();
         }
     }
 
+    public static void saida(ImageIcon saidaIcon) {
+        JOptionPane.showMessageDialog(null,
+                "Voce pressionou o botao 'Cancelar'. O programa sera encerrado.",
+                null, JOptionPane.WARNING_MESSAGE, saidaIcon);
+    }
+
     public static void main(final String[] args) {
         final WisefiApInclude app = new WisefiApInclude("-", 443);
         Object[] options = { "Avancar", "Autor", "Cancelar" };
+        ImageIcon apIcon = new ImageIcon("C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\ap.png");
+        ImageIcon dbIcon = new ImageIcon(
+                "C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\db_includer.png");
+        ImageIcon equipamentoIcon = new ImageIcon(
+                "C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\equipamento.png");
+        ImageIcon ipIcon = new ImageIcon("C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\ip.png");
+        ImageIcon macIcon = new ImageIcon(
+                "C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\mac.png");
+        ImageIcon saidaIcon = new ImageIcon(
+                "C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\saida.png");
+        ImageIcon erroIcon = new ImageIcon(
+                "C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\erro.png");
         final String[] modelos = {
                 "AP310",
                 "AP360",
-                "AP1210AC",
-                "AP1250ACMAX",
-                "AP1350AC",
-                "AP1350AC-S",
-                "AP1750AC",
+                "AP 1210 AC",
+                "AP 1250 AC Max",
+                "AP 1350 AC",
+                "AP 1350 AC-S",
+                "AP 1750 AC",
                 "BSPRO360",
                 "BSPRO1350",
                 "BSPRO1350-S",
-                "AP1250ACOUTDOOR"
+                "AP 1250 AC Outdoor"
         };
 
         boolean condition = false;
         do {
-            int result = JOptionPane.showOptionDialog(null, "Bem Vindo ao DB_Includer!", null,
+            int result = JOptionPane.showOptionDialog(null, "Bem Vindo ao DB_Includer!", "faber222",
                     JOptionPane.DEFAULT_OPTION,
-                    JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+                    JOptionPane.INFORMATION_MESSAGE, dbIcon, options, options[0]);
             switch (result) {
                 case 0:
                     condition = true;
                     break;
                 case 1:
                     mostrarCriador();
-
                     break;
                 default:
-                    JOptionPane.showMessageDialog(null,
-                            "Voce pressionou o botao 'Cancelar'. O programa sera encerrado.",
-                            "Aviso", JOptionPane.WARNING_MESSAGE);
+                    saida(saidaIcon);
                     System.exit(0);
                     break;
             }
         } while (!condition);
 
-        final Scanner keyboard = new Scanner(System.in); // Cria um objeto Scanner para entrada do teclado.
         do {
             // Solicita ao usuário que insira o IP do AP
             app.setIp(JOptionPane.showInputDialog("Digite o IP do AP:"));
             if (app.getIp() == null) {
-                JOptionPane.showMessageDialog(null, "Voce pressionou o botao 'Cancelar'. O programa sera encerrado.",
-                        "Aviso", JOptionPane.WARNING_MESSAGE);
+                saida(saidaIcon);
                 System.exit(0);
             }
             if (!isValidIPv4Address(app.getIp())) {
                 JOptionPane.showMessageDialog(null,
                         "Entrada invalida. Por favor, insira um ip valido 0-255", "Erro",
-                        JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.ERROR_MESSAGE, erroIcon);
             }
         } while (!isValidIPv4Address(app.ip));
 
@@ -189,14 +172,13 @@ public class WisefiApInclude {
             // Solicita ao usuário que insira o MAC do AP no formato correto
             app.setMac(JOptionPane.showInputDialog("Digite o MAC do AP (formato aa:bb:cc:dd:ee:ff):"));
             if (app.getMac() == null) {
-                JOptionPane.showMessageDialog(null, "Voce pressionou o botao 'Cancelar'. O programa sera encerrado.",
-                        "Aviso", JOptionPane.WARNING_MESSAGE);
+                saida(saidaIcon);
                 System.exit(0);
             }
             if (!isValidMACAddress(app.getMac())) {
                 JOptionPane.showMessageDialog(null,
                         "Entrada invalida. Por favor, insira um mac valido {aa:bb:cc:dd:ee:ff}", "Erro",
-                        JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.ERROR_MESSAGE, erroIcon);
             }
         } while (!isValidMACAddress(app.getMac()));
 
@@ -204,52 +186,43 @@ public class WisefiApInclude {
             // Solicita ao usuário que insira a versão do AP
             app.setVersao(JOptionPane.showInputDialog("Qual e a versao do AP? (v2.10.15):"));
             if (app.getVersao() == null) {
-                JOptionPane.showMessageDialog(null, "Voce pressionou o botao 'Cancelar'. O programa sera encerrado.",
-                        "Aviso", JOptionPane.WARNING_MESSAGE);
+                saida(saidaIcon);
                 System.exit(0);
             }
             if (!isValidVersion(app.getVersao())) {
                 JOptionPane.showMessageDialog(null, "Entrada invalida. Por favor, insira um modelo valido {v2.10.15}",
-                        "Erro",
-                        JOptionPane.ERROR_MESSAGE);
+                        "Erro", JOptionPane.ERROR_MESSAGE, erroIcon);
             }
         } while (!isValidVersion(app.getVersao()));
 
-        final StringBuilder message = new StringBuilder("Qual e o modelo do AP?\n");
-
-        for (int i = 0; i < modelos.length; i++) {
-            message.append(i + 1).append(". ").append(modelos[i]).append("\n");
-        }
-
+        Object[] aps = modelos;
+        String input = new String();
         do {
             // Solicita ao usuário que escolha um modelo de AP a partir de uma lista
-            // numerada
-            final String input = JOptionPane.showInputDialog(null, message.toString() +
-                    "\nPor favor, insira o numero correspondente ao modelo desejado:");
-
+            input = (String) JOptionPane.showInputDialog(null, "Por favor, escolha o modelo do ap:", "faber222",
+                    JOptionPane.QUESTION_MESSAGE, apIcon, aps, aps[0]);
             if (input == null) {
-                JOptionPane.showMessageDialog(null, "Voce pressionou o botao 'Cancelar'. O programa sera encerrado.",
-                        "Aviso", JOptionPane.WARNING_MESSAGE);
+                saida(saidaIcon);
                 System.exit(0);
             }
             try {
-                app.setEscolha(Integer.parseInt(input));
+                app.setEscolha(input);
             } catch (final NumberFormatException e) {
-                app.setEscolha(0);
-                ;
+                app.setEscolha(null);
             }
-            if (app.getEscolha() < 1 || app.getEscolha() > modelos.length) {
-                JOptionPane.showMessageDialog(null, "Entrada invalida. Por favor, insira um numero de 1 a 10.",
-                        "Erro",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-        } while (app.getEscolha() < 1 || app.getEscolha() > modelos.length);
+        } while (app.getEscolha() == null);
 
-        keyboard.close(); // Fecha o Scanner.
-        setDb(app);
+        if (setDb(app)) {
+            JOptionPane.showInternalMessageDialog(null, "Equipamento adicionado com sucesso!",
+                    "Aviso", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(null, "Não foi possível adicionar o equipamento!",
+                    "Erro", JOptionPane.ERROR_MESSAGE, erroIcon);
+        }
+        System.exit(0);
     }
 
-    private static void setDb(final WisefiApInclude app) {
+    private static boolean setDb(final WisefiApInclude app) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         List<Integer> existingIds = new ArrayList<>();
@@ -286,7 +259,7 @@ public class WisefiApInclude {
             pstmt.setString(4, app.getMac());
             pstmt.setString(5, app.getUptime());
             pstmt.setString(6, app.getVersao());
-            pstmt.setString(7, getModelo(app.getEscolha()));
+            pstmt.setString(7, app.getEscolha());
 
             pstmt.executeUpdate();
 
@@ -297,9 +270,10 @@ public class WisefiApInclude {
             System.out.println("Port: " + app.getPort());
             System.out.println("MAC: " + app.getMac());
             System.out.println("Versao: " + app.getVersao());
-            System.out.println("Produto: " + getModelo(app.getEscolha()));
+            System.out.println("Produto: " + app.getEscolha());
 
             System.out.println("Dados inseridos com sucesso!");
+            return true;
 
         } catch (final Exception e) {
             e.printStackTrace();
@@ -311,6 +285,7 @@ public class WisefiApInclude {
                     ex.printStackTrace();
                 }
             }
+            return false;
         } finally {
             try {
                 if (pstmt != null)
@@ -386,11 +361,11 @@ public class WisefiApInclude {
         this.versao = versao;
     }
 
-    public Integer getEscolha() {
+    public String getEscolha() {
         return escolha;
     }
 
-    public void setEscolha(final Integer escolha) {
+    public void setEscolha(final String escolha) {
         this.escolha = escolha;
     }
 
