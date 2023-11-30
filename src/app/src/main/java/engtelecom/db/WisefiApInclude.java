@@ -21,6 +21,7 @@ import javax.swing.JOptionPane;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
+// import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
@@ -109,6 +110,7 @@ public class WisefiApInclude {
     public static void main(final String[] args) {
         final WisefiApInclude app = new WisefiApInclude("-", 443);
         Object[] options = { "Avancar", "Autor", "Cancelar" };
+<<<<<<< HEAD
         ImageIcon apIcon = new ImageIcon("./app/src/main/resources/ap.png");
         ImageIcon dbIcon = new ImageIcon(
                 "./app/src/main/resources/db_includer.png");
@@ -121,6 +123,16 @@ public class WisefiApInclude {
                 "./app/src/main/resources/saida.png");
         ImageIcon erroIcon = new ImageIcon(
                 "./app/src/main/resources/erro.png");
+=======
+        ClassLoader classLoader = WisefiApInclude.class.getClassLoader();
+        ImageIcon apIcon = new ImageIcon(classLoader.getResource("ap.png"));
+        ImageIcon dbIcon = new ImageIcon(classLoader.getResource("db_includer.png"));
+        ImageIcon equipamentoIcon = new ImageIcon(classLoader.getResource("equipamento.png"));
+        ImageIcon ipIcon = new ImageIcon(classLoader.getResource("ip.png"));
+        ImageIcon macIcon = new ImageIcon(classLoader.getResource("mac.png"));
+        ImageIcon saidaIcon = new ImageIcon(classLoader.getResource("saida.png"));
+        ImageIcon erroIcon = new ImageIcon(classLoader.getResource("erro.png"));
+>>>>>>> 8963471ad1027c3dc966505cdef602ab25396930
         final String[] modelos = {
                 "AP310",
                 "AP360",
