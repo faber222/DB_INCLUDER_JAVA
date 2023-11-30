@@ -109,18 +109,18 @@ public class WisefiApInclude {
     public static void main(final String[] args) {
         final WisefiApInclude app = new WisefiApInclude("-", 443);
         Object[] options = { "Avancar", "Autor", "Cancelar" };
-        ImageIcon apIcon = new ImageIcon("C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\ap.png");
+        ImageIcon apIcon = new ImageIcon("./app/src/main/resources/ap.png");
         ImageIcon dbIcon = new ImageIcon(
-                "C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\db_includer.png");
+                "./app/src/main/resources/db_includer.png");
         ImageIcon equipamentoIcon = new ImageIcon(
-                "C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\equipamento.png");
-        ImageIcon ipIcon = new ImageIcon("C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\ip.png");
+                "./app/src/main/resources/equipamento.png");
+        ImageIcon ipIcon = new ImageIcon("./app/src/main/resources/ip.png");
         ImageIcon macIcon = new ImageIcon(
-                "C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\mac.png");
+                "./app/src/main/resources/mac.png");
         ImageIcon saidaIcon = new ImageIcon(
-                "C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\saida.png");
+                "./app/src/main/resources/saida.png");
         ImageIcon erroIcon = new ImageIcon(
-                "C:\\Users\\faber\\faber\\db_sqlite\\src\\app\\src\\main\\resources\\erro.png");
+                "./app/src/main/resources/erro.png");
         final String[] modelos = {
                 "AP310",
                 "AP360",
