@@ -39,7 +39,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass.set("engtelecom.db.WisefiApInclude")
+    mainClass.set("engtelecom.db.DbIncluder")
 }
 
 // Definindo o diretório de saída para as imagens
