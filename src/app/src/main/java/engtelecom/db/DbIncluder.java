@@ -1,5 +1,6 @@
 package engtelecom.db;
 
+import java.awt.HeadlessException;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
@@ -94,75 +95,6 @@ public class DbIncluder extends javax.swing.JFrame {
         });
     }
 
-    private static boolean setDb(JTable table) {
-        List<Integer> existingIds = new ArrayList<>();
-        final Random random = new Random();
-        Integer id;
-
-        try {
-            // Registrar o driver JDBC para SQLite
-            Class.forName("org.sqlite.JDBC");
-
-            // Abrir a conexão com o banco de dados SQLite
-            try (Connection conn = DriverManager
-                    .getConnection("jdbc:sqlite:C:/intelbras/WiseFi/web/wisefi/db.sqlite3")) {
-                // Desabilitar o autocommit
-                conn.setAutoCommit(false);
-
-                existingIds = getExistingIdsFromDatabase();
-                Collections.sort(existingIds);
-
-                // Iterar sobre as linhas da JTable
-                for (int row = 0; row < table.getRowCount(); row++) {
-                    // Gerar um ID único para cada linha
-                    do {
-                        id = random.nextInt(500);
-                    } while (existingIds.contains(id)); // Garante que o ID é único
-
-                    // Preparar a instrução SQL
-                    final String sql = "INSERT INTO discovery_discovery (id, ip, port, mac, uptime, version, produto) VALUES (?, ?, ?, ?, ?, ?, ?)";
-                    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                        // Obter os dados da tabela
-                        String ip = (String) table.getValueAt(row, 0); // Supondo que IP está na coluna 0
-                        int port = 443; // Supondo que Port está na coluna 1
-                        String mac = (String) table.getValueAt(row, 1); // Supondo que MAC está na coluna 1
-                        String uptime = "-"; // Supondo que Uptime está na coluna 3
-                        String versao = (String) table.getValueAt(row, 2); // Supondo que Versão está na coluna 2
-                        String produto = (String) table.getValueAt(row, 3); // Supondo que Produto está na coluna 3
-
-                        // Configurar os parâmetros da consulta
-                        pstmt.setInt(1, id);
-                        pstmt.setString(2, ip);
-                        pstmt.setInt(3, port);
-                        pstmt.setString(4, mac);
-                        pstmt.setString(5, uptime);
-                        pstmt.setString(6, versao);
-                        pstmt.setString(7, produto);
-
-                        System.out.println("ID inserido: " + id);
-                        System.out.println("IP: " + ip);
-                        System.out.println("Port: " + port);
-                        System.out.println("MAC: " + mac);
-                        System.out.println("Versao: " + versao);
-                        System.out.println("Produto: " + produto);
-
-                        pstmt.executeUpdate();
-                    }
-                }
-
-                // Fazer o commit
-                conn.commit(); // Fazer o commit
-                System.out.println("Todos os dados inseridos com sucesso!");
-
-                return true;
-            }
-        } catch (final Exception e) {
-            JOptionPane.showMessageDialog(null, "Não foi possível acessar o banco de dados!");
-            e.printStackTrace();
-            return false; // Retorna falso em caso de erro
-        }
-    }
-
     private static List<Integer> getExistingIdsFromDatabase() {
         final List<Integer> existingIds = new ArrayList<>();
         Connection conn = null;
@@ -184,8 +116,7 @@ public class DbIncluder extends javax.swing.JFrame {
                 existingIds.add(resultSet.getInt("id"));
             }
 
-        } catch (final Exception e) {
-            e.printStackTrace();
+        } catch (final ClassNotFoundException | SQLException e) {
         } finally {
             try {
                 if (resultSet != null)
@@ -195,7 +126,6 @@ public class DbIncluder extends javax.swing.JFrame {
                 if (conn != null)
                     conn.close();
             } catch (final SQLException se) {
-                se.printStackTrace();
             }
         }
 
@@ -224,6 +154,7 @@ public class DbIncluder extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
 
     private javax.swing.JLabel jLabel3;
+
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel;
     private javax.swing.JPanel jPanel1;
@@ -231,7 +162,7 @@ public class DbIncluder extends javax.swing.JFrame {
     private javax.swing.JTable jTable;
     private javax.swing.JTextField jTextFieldIp;
     private javax.swing.JTextField jTextFieldVersao;
-    private ImageIcon mainIcon;
+    private final ImageIcon mainIcon;
 
     // End of variables declaration//GEN-END:variables
     /**
@@ -244,8 +175,82 @@ public class DbIncluder extends javax.swing.JFrame {
         final DefaultTableModel modelo = (DefaultTableModel) jTable.getModel();
         jTable.setRowSorter(new TableRowSorter(modelo));
         final ClassLoader classLoader = DbIncluder.class.getClassLoader();
-        this.mainIcon = new ImageIcon(classLoader.getResource("malicious-script.png"));
+        this.mainIcon = new ImageIcon(classLoader.getResource("includer.png"));
         this.setIconImage(this.mainIcon.getImage());
+    }
+
+    private boolean setDb(final JTable table) {
+        List<Integer> existingIds = new ArrayList<>();
+        final Random random = new Random();
+        Integer id;
+
+        try {
+            // Registrar o driver JDBC para SQLite
+            Class.forName("org.sqlite.JDBC");
+
+            // Abrir a conexão com o banco de dados SQLite
+            try (Connection conn = DriverManager
+                    .getConnection("jdbc:sqlite:C:/intelbras/WiseFi/web/wisefi/db.sqlite3")) {
+                // Desabilitar o autocommit
+                conn.setAutoCommit(false);
+
+                existingIds = getExistingIdsFromDatabase();
+                Collections.sort(existingIds);
+
+                // Iterar sobre as linhas da JTable
+                for (int row = 0; row < table.getRowCount(); row++) {
+                    // Gerar um ID único para cada linha
+                    do {
+                        id = random.nextInt(500);
+                    } while (existingIds.contains(id)); // Garante que o ID é único
+
+                    // Preparar a instrução SQL
+                    final String sql = "INSERT INTO discovery_discovery (id, ip, port, mac, uptime, version, produto) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                        // Obter os dados da tabela
+                        final String ip = (String) table.getValueAt(row, 0); // Supondo que IP está na coluna 0
+                        final int port = 443; // Supondo que Port está na coluna 1
+                        final String mac = (String) table.getValueAt(row, 1); // Supondo que MAC está na coluna 1
+                        final String uptime = "-"; // Supondo que Uptime está na coluna 3
+                        final String versao = (String) table.getValueAt(row, 2); // Supondo que Versão está na coluna 2
+                        final String produto = (String) table.getValueAt(row, 3); // Supondo que Produto está na coluna
+                                                                                  // 3
+
+                        // Configurar os parâmetros da consulta
+                        pstmt.setInt(1, id);
+                        pstmt.setString(2, ip);
+                        pstmt.setInt(3, port);
+                        pstmt.setString(4, mac);
+                        pstmt.setString(5, uptime);
+                        pstmt.setString(6, versao);
+                        pstmt.setString(7, produto);
+
+                        System.out.println("ID inserido: " + id);
+                        System.out.println("IP: " + ip);
+                        System.out.println("Port: " + port);
+                        System.out.println("MAC: " + mac);
+                        System.out.println("Versao: " + versao);
+                        System.out.println("Produto: " + produto);
+
+                        pstmt.executeUpdate();
+                    }
+                }
+
+                // Fazer o commit
+                conn.commit(); // Fazer o commit
+                System.out.println("Todos os dados inseridos com sucesso!");
+                CustomOptionPane.showMessageDialog(null, "Todos os dados inseridos com sucesso!", "",
+                        JOptionPane.INFORMATION_MESSAGE, this.mainIcon);
+
+                return true;
+            }
+        } catch (final HeadlessException | ClassNotFoundException | SQLException e) {
+            // JOptionPane.showMessageDialog(null, "Não foi possível acessar o banco de
+            // dados!");
+            CustomOptionPane.showMessageDialog(null, "Não foi possível acessar o banco de dados!", "",
+                    JOptionPane.WARNING_MESSAGE, this.mainIcon);
+            return false; // Retorna falso em caso de erro
+        }
     }
 
     /**
@@ -253,7 +258,7 @@ public class DbIncluder extends javax.swing.JFrame {
      * WARNING: Do NOT modify this code. The content of this method is always
      * regenerated by the Form Editor.
      */
-    @SuppressWarnings({ "unchecked", "CallToPrintStackTrace" })
+    @SuppressWarnings({ "CallToPrintStackTrace" })
     // <editor-fold defaultstate="collapsed" desc="Generated
     // <editor-fold defaultstate="collapsed" desc="Generated
     // <editor-fold defaultstate="collapsed" desc="Generated
@@ -319,13 +324,13 @@ public class DbIncluder extends javax.swing.JFrame {
         jTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(final java.awt.event.MouseEvent evt) {
-                jTableMouseClicked(evt);
+                jTableMouseClicked();
             }
         });
         jTable.addKeyListener(new java.awt.event.KeyAdapter() {
             @SuppressWarnings("override")
             public void keyReleased(final java.awt.event.KeyEvent evt) {
-                jTableKeyReleased(evt);
+                jTableKeyReleased();
             }
         });
         jScrollPane1.setViewportView(jTable);
@@ -364,6 +369,7 @@ public class DbIncluder extends javax.swing.JFrame {
         } catch (final java.text.ParseException ex) {
             ex.printStackTrace();
         }
+        jTextFieldIp.setToolTipText("10.0.0.1");
         jFormattedMac.setToolTipText("aa:bb:cc:dd:ee:ff");
 
         jTextFieldVersao.setText("v");
@@ -374,12 +380,12 @@ public class DbIncluder extends javax.swing.JFrame {
 
         jButtonInserir.setText("Incluir");
         jButtonInserir.addActionListener((final java.awt.event.ActionEvent evt) -> {
-            jButtonInserirActionPerformed(evt);
+            jButtonInserirActionPerformed();
         });
 
         jButtonAtualizar.setText("Atualizar");
         jButtonAtualizar.addActionListener((final java.awt.event.ActionEvent evt) -> {
-            jButtonAtualizarActionPerformed(evt);
+            jButtonAtualizarActionPerformed();
         });
 
         final javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -458,22 +464,22 @@ public class DbIncluder extends javax.swing.JFrame {
 
         jButtonCancel.setText("Cancelar");
         jButtonCancel.addActionListener((final java.awt.event.ActionEvent evt) -> {
-            jButtonCancelActionPerformed(evt);
+            jButtonCancelActionPerformed();
         });
 
         jButtonEnviar.setText("Enviar");
         jButtonEnviar.addActionListener((final java.awt.event.ActionEvent evt) -> {
-            jButtonEnviarActionPerformed(evt);
+            jButtonEnviarActionPerformed();
         });
 
-        jButtonRemoverSelecionado.setText("Remover Selecionados");
+        jButtonRemoverSelecionado.setText("Remover Selecionado");
         jButtonRemoverSelecionado.addActionListener((final java.awt.event.ActionEvent evt) -> {
-            jButtonRemoverSelecionadoActionPerformed(evt);
+            jButtonRemoverSelecionadoActionPerformed();
         });
 
         jButtonRemoverTodos.setText("Remover Todos");
         jButtonRemoverTodos.addActionListener((final java.awt.event.ActionEvent evt) -> {
-            jButtonRemoverTodosActionPerformed(evt);
+            jButtonRemoverTodosActionPerformed();
         });
 
         final javax.swing.GroupLayout jPanelLayout = new javax.swing.GroupLayout(jPanel);
@@ -535,11 +541,11 @@ public class DbIncluder extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }
 
-    private void jButtonCancelActionPerformed(final java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButtonCancelActionPerformed
+    private void jButtonCancelActionPerformed() {
         System.exit(0); // Fecha a aplicação
     }
 
-    private void jButtonRemoverSelecionadoActionPerformed(final java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButtonRemoverSelecionadoActionPerformed
+    private void jButtonRemoverSelecionadoActionPerformed() {
         final DefaultTableModel dtmDispositivos = (DefaultTableModel) jTable.getModel();
         if (jTable.getSelectedRow() != -1) {
             final int confirm = JOptionPane.showConfirmDialog(null,
@@ -550,28 +556,32 @@ public class DbIncluder extends javax.swing.JFrame {
                 dtmDispositivos.removeRow(jTable.getSelectedRow());
             }
         } else {
-            JOptionPane.showMessageDialog(null, "Selecione um produto para excluir!");
+            // JOptionPane.showMessageDialog(null, "Selecione um produto para excluir!", "",
+            // JOptionPane.INFORMATION_MESSAGE);
+            CustomOptionPane.showMessageDialog(null, "Selecione um produto para excluir!", "Aviso",
+                    JOptionPane.INFORMATION_MESSAGE, mainIcon);
+
         }
     }
 
-    private void jButtonRemoverTodosActionPerformed(final java.awt.event.ActionEvent evt) {
+    private void jButtonRemoverTodosActionPerformed() {
         final DefaultTableModel dtmDispositivos = (DefaultTableModel) jTable.getModel();
         // Verifica se há linhas na tabela
         if (dtmDispositivos.getRowCount() > 0) {
-            final int confirm = JOptionPane.showConfirmDialog(null,
-                    "Tem certeza que deseja remover todos os produtos?",
-                    "Confirmação",
-                    JOptionPane.YES_NO_OPTION);
+            final int confirm = CustomOptionPane.showConfirmDialog(null,
+                    "Tem certeza que deseja remover todos os produtos?", "Confirmação",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, mainIcon);
 
             if (confirm == JOptionPane.YES_OPTION) {
                 dtmDispositivos.setRowCount(0); // Remove todas as linhas da tabela
             }
         } else {
-            JOptionPane.showMessageDialog(null, "A tabela está vazia!");
+            CustomOptionPane.showMessageDialog(null, "A tabela está vazia!", "", JOptionPane.INFORMATION_MESSAGE,
+                    mainIcon);
         }
     }
 
-    private void jButtonAtualizarActionPerformed(final java.awt.event.ActionEvent evt) {
+    private void jButtonAtualizarActionPerformed() {
         if (jTable.getSelectedRow() != -1) {
             if (isValidIPv4Address(jTextFieldIp.getText()) && isValidMACAddress(jFormattedMac.getText())
                     && isValidVersion(
@@ -581,14 +591,18 @@ public class DbIncluder extends javax.swing.JFrame {
                 jTable.getModel().setValueAt(jTextFieldVersao.getText(), jTable.getSelectedRow(), 2);
                 jTable.getModel().setValueAt(jComboBoxModelo.getSelectedItem(), jTable.getSelectedRow(), 3);
             } else {
-                JOptionPane.showMessageDialog(null, "Valores inválidos para IP, MAC ou Versão!");
+                CustomOptionPane.showMessageDialog(null, "Valores inválidos para IP, MAC ou Versão!", "",
+                        JOptionPane.ERROR_MESSAGE,
+                        mainIcon);
             }
         } else {
-            JOptionPane.showMessageDialog(null, "Selecione um produto para atualizar!");
+            CustomOptionPane.showMessageDialog(null, "Selecione um produto para atualizar!", "",
+                    JOptionPane.INFORMATION_MESSAGE,
+                    mainIcon);
         }
     }
 
-    private void jTableMouseClicked(final java.awt.event.MouseEvent evt) {
+    private void jTableMouseClicked() {
         if (jTable.getSelectedRow() != -1) {
             jTextFieldIp.setText(jTable.getValueAt(jTable.getSelectedRow(), 0).toString());
             jFormattedMac.setText(jTable.getValueAt(jTable.getSelectedRow(), 1).toString());
@@ -597,7 +611,7 @@ public class DbIncluder extends javax.swing.JFrame {
         }
     }
 
-    private void jTableKeyReleased(final java.awt.event.KeyEvent evt) {
+    private void jTableKeyReleased() {
         if (jTable.getSelectedRow() != -1) {
             jTextFieldIp.setText(jTable.getValueAt(jTable.getSelectedRow(), 0).toString());
             jFormattedMac.setText(jTable.getValueAt(jTable.getSelectedRow(), 1).toString());
@@ -606,18 +620,20 @@ public class DbIncluder extends javax.swing.JFrame {
         }
     }
 
-    private void jButtonEnviarActionPerformed(final java.awt.event.ActionEvent evt) {
+    private void jButtonEnviarActionPerformed() {
         final DefaultTableModel dtmDispositivos = (DefaultTableModel) jTable.getModel();
         // Verifica se há linhas na tabela
         if (dtmDispositivos.getRowCount() > 0) {
             setDb(jTable);
         } else {
-            JOptionPane.showMessageDialog(null, "A tabela está vazia!");
+            CustomOptionPane.showMessageDialog(null, "Nenhum produto para cadastrar!", "",
+                    JOptionPane.INFORMATION_MESSAGE,
+                    mainIcon);
         }
 
     }
 
-    private void jButtonInserirActionPerformed(final java.awt.event.ActionEvent evt) {
+    private void jButtonInserirActionPerformed() {
         final DefaultTableModel dtmDispositivos = (DefaultTableModel) jTable.getModel();
         if (isValidIPv4Address(jTextFieldIp.getText()) && isValidMACAddress(jFormattedMac.getText()) && isValidVersion(
                 jTextFieldVersao.getText())) {
@@ -625,7 +641,9 @@ public class DbIncluder extends javax.swing.JFrame {
                     jComboBoxModelo.getSelectedItem() };
             dtmDispositivos.addRow(dados);
         } else {
-            JOptionPane.showMessageDialog(null, "Valores inválidos para IP, MAC ou Versão!");
+            CustomOptionPane.showMessageDialog(null, "Valores inválidos para IP, MAC ou Versão!", "",
+                    JOptionPane.ERROR_MESSAGE,
+                    mainIcon);
         }
 
     }
